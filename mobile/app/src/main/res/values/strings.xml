@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">PintIt</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Pins</string>
+    <string name="title_notifications">Account</string>
+    <string name="title_activity_fullscreen">PinIt</string>
+    <string name="dummy_button">Enter</string>
+    <string name="dummy_content">Pin your favorite spots!</string>
+    <string name="title_activity_maps">Map</string>
+</resources>
