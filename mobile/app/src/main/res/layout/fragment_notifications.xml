@@ -21,6 +21,6 @@
         android:background="#0000ff"
         android:textStyle="bold"
         android:textFontWeight="2"
-        android:text="Leave" />
+        android:text="Logout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

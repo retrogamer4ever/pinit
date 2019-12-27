@@ -13,7 +13,7 @@ public class StorageUtil {
 
     public static void set(Activity activity, String key, Object value){
         Gson g = new Gson();
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = activity.getSharedPreferences(key, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(key, g.toJson(value));
         editor.commit();
@@ -25,7 +25,7 @@ public class StorageUtil {
 
     public static <T> Object get(Activity activity, String key, Class objClass){
 
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = activity.getSharedPreferences(key, Context.MODE_PRIVATE);
         String storedJson = sharedPref.getString(key, null);
 
         if(storedJson == null || storedJson.equals(null)){

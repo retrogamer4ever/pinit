@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationClient;
     private static Activity activityContext;
+    private String fbId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,11 +124,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         activityContext = this;
-
+        fbId = (String)StorageUtil.get(this, "fbid", String.class);
         if(StorageUtil.get(this, "tutorial", Boolean.class) == null){
             DialogUtil.show(this, "Tutorial", "Tap on the map to pin a location, then tap the pin to remove it.\n\nTap the screen to close window.");
             StorageUtil.set(this, "tutorial", true);
         }
+
+
     }
 
     @Override
@@ -160,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
 
         // populating screen with markers
-        ArrayList<LinkedTreeMap> myStoredData = (ArrayList<LinkedTreeMap>) StorageUtil.get(activityContext, "joespins", ArrayList.class);
+        ArrayList<LinkedTreeMap> myStoredData = (ArrayList<LinkedTreeMap>) StorageUtil.get(activityContext, fbId, ArrayList.class);
         if(myStoredData != null){
             for(int i = 0; i < myStoredData.size(); i++){
                 LinkedTreeMap tree = myStoredData.get(i);
@@ -201,7 +204,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void onLogoutButtonClick(View view)
     {
-        IntentUtil.start(this, FullscreenActivity.class);
+        DialogUtil.show(this, "Logging out", "This will log you out of the app and you will need to log into Facebook again, are you sure?", "YES", "NO", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    StorageUtil.set(activityContext, "fbid", null);
+                    IntentUtil.start(activityContext, FullscreenActivity.class);
+                }
+                },
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+
+
     }
 
     public boolean onMenuItemClick(MenuItem item){
@@ -275,13 +292,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         ArrayList<PinData> locations = new ArrayList<PinData>();
         locations.add(pinData);
 
-        ArrayList<Object> myStoredData = (ArrayList<Object>) StorageUtil.get(activityContext, "joespins", ArrayList.class);
+        ArrayList<Object> myStoredData = (ArrayList<Object>) StorageUtil.get(activityContext, fbId, ArrayList.class);
 
         if(myStoredData != null){
             myStoredData.add(pinData);
-            StorageUtil.set(this, "joespins", myStoredData);
+            StorageUtil.set(this, fbId, myStoredData);
         }else{
-            StorageUtil.set(this, "joespins", locations);
+            StorageUtil.set(this, fbId, locations);
         }
     }
 
@@ -294,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void onMarkerDragEnd(Marker var1){
-        ArrayList<LinkedTreeMap> myStoredData = (ArrayList<LinkedTreeMap>) StorageUtil.get(activityContext, "joespins", ArrayList.class);
+        ArrayList<LinkedTreeMap> myStoredData = (ArrayList<LinkedTreeMap>) StorageUtil.get(activityContext, fbId, ArrayList.class);
         for(int i = 0; i < myStoredData.size(); i++){
             LinkedTreeMap tree = myStoredData.get(i);
             if(var1.getSnippet().equals(tree.get("id"))) {
@@ -331,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 tree.put("name", result);
                 myStoredData.set(i, tree);
-                StorageUtil.set(activityContext, "joespins", myStoredData);
+                StorageUtil.set(activityContext, fbId, myStoredData);
                 break;
             }
         }
@@ -347,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 clickedMarker.remove();
 
-                ArrayList<LinkedTreeMap> myStoredData = (ArrayList<LinkedTreeMap>) StorageUtil.get(activityContext, "joespins", ArrayList.class);
+                ArrayList<LinkedTreeMap> myStoredData = (ArrayList<LinkedTreeMap>) StorageUtil.get(activityContext, fbId, ArrayList.class);
                 for(int i = 0; i < myStoredData.size(); i++){
                     LinkedTreeMap tree = myStoredData.get(i);
                     double longitude = (double)tree.get("longitude");
@@ -359,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 }
 
-                StorageUtil.set(activityContext, "joespins", myStoredData);
+                StorageUtil.set(activityContext, fbId, myStoredData);
 
 
                 /*
