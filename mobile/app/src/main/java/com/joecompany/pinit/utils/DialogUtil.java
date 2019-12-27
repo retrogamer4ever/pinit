@@ -2,6 +2,7 @@ package com.joecompany.pinit.utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.view.View;
@@ -23,5 +24,12 @@ public class DialogUtil {
         alertDialogBuilder.setNegativeButton(noLabel, noClickListener);
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
+    }
+
+    public static void showLoading(Context context){
+        ProgressDialog pd = new ProgressDialog(context);
+        pd.setCancelable(false);
+        pd.setMessage("loading");
+        pd.show();
     }
 }

@@ -6,6 +6,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -139,9 +140,11 @@ public class FullscreenActivity extends AppCompatActivity {
                         String clientSecret = "dd006b67404848ab9b24c461eed140e3";
                         String redirectUri =   "https://myremindoapptesting.me/fblogin.html";
                         URL url = new URL("https://graph.facebook.com/v5.0/oauth/access_token?client_id=" + clientId + "&redirect_uri=" + redirectUri + "&client_secret=" + clientSecret + "&code=" + fbCode);
+                        HttpURLConnection myURLConnection = (HttpURLConnection)url.openConnection();
+
 
                         // open the url stream, wrap it an a few "readers"
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(myURLConnection.getInputStream()));
                         StringBuilder response = new StringBuilder();
                         String inputLine;
 
@@ -160,10 +163,13 @@ public class FullscreenActivity extends AppCompatActivity {
 
                         // NOW WE NEED TO GET USER ID
 
-                        URL url2 = new URL("https://graph.facebook.com/debug_token?input_token=" + accessToken + "&access_token=" + accessToken);
+                        URL url2 = new URL("https://graph.facebook.com/me?fields=id&input_token=" + accessToken + "&access_token=" + accessToken);
+                        HttpURLConnection myURLConnection2 = (HttpURLConnection)url2.openConnection();
+
 
                         // open the url stream, wrap it an a few "readers"
-                        BufferedReader reader2 = new BufferedReader(new InputStreamReader(url2.openStream()));
+                        BufferedReader reader2 = new BufferedReader(new InputStreamReader(myURLConnection2.getInputStream()));
+
                         StringBuilder response2 = new StringBuilder();
                         String inputLine2;
 
@@ -174,11 +180,12 @@ public class FullscreenActivity extends AppCompatActivity {
 
                         reader2.close();
 
-                        Map<String, Map<String, String>> json2 = new Gson().fromJson(rawJson2, Map.class);
+                        Map<String, String> json2 = new Gson().fromJson(rawJson2, Map.class);
 
-                        userId = json2.get("data").get("user_id");
+                        userId = json2.get("id");
 
                         StorageUtil.set(parentActivity, "fbid", userId);
+                        StorageUtil.set(parentActivity, "fbAccessToken", accessToken);
 
                         IntentUtil.start(parentActivity, MainActivity.class);
 

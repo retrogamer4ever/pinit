@@ -35,8 +35,8 @@ public class DashboardFragment extends Fragment {
         dashboardViewModel =
                 ViewModelProviders.of(this).get(DashboardViewModel.class);
         View root = inflater.inflate(R.layout.fragment_dashboard, container, false);
-
-        ArrayList<LinkedTreeMap> myStoredData = (ArrayList<LinkedTreeMap>) StorageUtil.get(getActivity(), "joespins", ArrayList.class);
+        String fbId = (String)StorageUtil.get(getActivity(), "fbid", String.class);
+        ArrayList<LinkedTreeMap> myStoredData = (ArrayList<LinkedTreeMap>) StorageUtil.get(getActivity(), fbId, ArrayList.class);
 
         if(myStoredData != null && myStoredData.size() != 0) {
             final ListView list = root.findViewById(R.id.list);

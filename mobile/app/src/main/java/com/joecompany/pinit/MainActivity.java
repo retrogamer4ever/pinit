@@ -47,6 +47,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.joecompany.pinit.data.PinData;
 import com.joecompany.pinit.ui.FullscreenActivity;
@@ -56,10 +57,15 @@ import com.joecompany.pinit.utils.StorageUtil;
 
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, MenuItem.OnMenuItemClickListener, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnMarkerDragListener {
 
@@ -204,12 +210,46 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void onLogoutButtonClick(View view)
     {
-        DialogUtil.show(this, "Logging out", "This will log you out of the app and you will need to log into Facebook again, are you sure?", "YES", "NO", new DialogInterface.OnClickListener() {
+        DialogUtil.show(this, "Logging out", "This will log you out of the app and you will need to log into Facebook again, are you sure?\n\nNote: You should also logout of https://facebook.com to make sure you are 100% logged out.", "YES", "NO", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                    StorageUtil.set(activityContext, "fbid", null);
-                    IntentUtil.start(activityContext, FullscreenActivity.class);
-                }
+                        new Thread() {
+                            public void run() {
+                                try{
+                                    String accessToken = (String)StorageUtil.get(activityContext, "fbAccessToken", String.class);
+                                    URL url = new URL("https://graph.facebook.com/v5.0/me/permissions?access_token=" + accessToken);
+                                    HttpURLConnection myURLConnection = (HttpURLConnection)url.openConnection();
+                                    myURLConnection.setRequestMethod("DELETE");
+
+                                    // open the url stream, wrap it an a few "readers"
+                                    BufferedReader reader = new BufferedReader(new InputStreamReader(myURLConnection.getInputStream()));
+                                    StringBuilder response = new StringBuilder();
+                                    String inputLine;
+
+                                    while ((inputLine = reader.readLine()) != null)
+                                        response.append(inputLine);
+
+                                    String rawJson = response.toString();
+
+                                    reader.close();
+
+                                    Map<String, Boolean> json = new Gson().fromJson(rawJson, Map.class);
+
+                                    if((json.get("success") == true)){
+                                        StorageUtil.set(activityContext, "fbid", null);
+                                        IntentUtil.start(activityContext, FullscreenActivity.class);
+                                    }else{
+                                        DialogUtil.show(activityContext, "Error", "Error logging out, please restart the app.");
+                                    }
+
+                                }catch(Exception e){
+                                    Log.i("joe:",e.getMessage() );
+                                    StorageUtil.set(activityContext, "fbid", null);
+                                    IntentUtil.start(activityContext, FullscreenActivity.class);
+                                }
+                            }
+                        }.start();
+                    }
                 },
                 new DialogInterface.OnClickListener() {
                     @Override
