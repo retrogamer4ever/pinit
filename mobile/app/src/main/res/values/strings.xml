@@ -1,10 +1,8 @@
 <resources>
     <string name="app_name">PintIt</string>
     <string name="title_home">Home</string>
-    <string name="title_dashboard">Pins</string>
-    <string name="title_notifications">Account</string>
-    <string name="title_activity_fullscreen">PinIt</string>
-    <string name="dummy_button">Login With Facebook</string>
-    <string name="dummy_content">Pin your favorite spots!</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="title_pins">Pins</string>
+    <string name="title_account">Account</string>
+    <string name="title_activity">PinIt</string>
+    <string name="login_button">Login With Facebook</string>
 </resources>
