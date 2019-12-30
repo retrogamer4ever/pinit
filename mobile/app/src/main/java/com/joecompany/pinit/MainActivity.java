@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void onLogoutButtonClick(View view) {
-        DialogUtil.show(this, "Logging out", "This will log you out of the app and you will need to log into Facebook again, are you sure?\n\nNote: You should also logout of https://facebook.com to make sure you are 100% logged out.", "YES", "NO", new DialogInterface.OnClickListener() {
+        DialogUtil.show(this, "Logging out", "This will log you out of the app and you will need to log into Facebook again, are you sure?\n\nNote: You should also logout of the Facebook website to make sure you are 100% logged out.", "YES", "NO", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
             StorageUtil.set(activityContext, StorageKeys.FB_ID, null);

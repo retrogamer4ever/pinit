@@ -6,12 +6,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
 import android.view.View;
 
 import com.joecompany.pinit.constants.Facebook;
-import com.joecompany.pinit.constants.LogTags;
 import com.joecompany.pinit.constants.StorageKeys;
+import com.joecompany.pinit.utils.DialogUtil;
 import com.joecompany.pinit.utils.FacebookUtil;
 import com.joecompany.pinit.utils.IntentUtil;
 import com.joecompany.pinit.utils.StorageUtil;
@@ -45,17 +45,24 @@ public class LoginActivity extends AppCompatActivity {
         Bundle intentParams = getIntent().getExtras();
         if (intentParams != null){
 
-            //TODO: This way currently works but is very hacky, need to find a better way to break up the url
-            String fbcode = intentParams.getString("fbcode"); //dummy code should be eventually removed
-
-            UrlDetector parser = new UrlDetector(intentParams.toString(), UrlDetectorOptions.ALLOW_SINGLE_LEVEL_DOMAIN.Default);
-
-            List<Url> found = parser.detect();
-
-            // TODO: should always be second returned value, but need to discover better way to handle this
-            Url fbCallbackUrl = found.get(2);
-
             try{
+
+                //TODO: This way currently works but is very hacky, need to find a better way to break up the url
+                String fbcode = intentParams.getString("fbcode"); //dummy code should be eventually removed
+
+                UrlDetector parser = new UrlDetector(intentParams.toString(), UrlDetectorOptions.ALLOW_SINGLE_LEVEL_DOMAIN.Default);
+
+                List<Url> fbCallbackUrls = parser.detect();
+
+                Url fbCallbackUrl = null;
+
+                // Looping through broken up callback url from facebook to try find the fb code, need it to get access code
+                for (Url url : fbCallbackUrls) {
+                    if(url.getFullUrl().contains("code")){
+                        fbCallbackUrl = url;
+                        break;
+                    }
+                }
 
                 String urlFragment = fbCallbackUrl.getQuery();
 
@@ -82,7 +89,14 @@ public class LoginActivity extends AppCompatActivity {
                 }.start();
 
             }catch(Exception e){
-                Log.i(LogTags.PINIT, e.getMessage() );
+
+                // Must be in a seperate thread for this particular phase in the apps life cycle (onCreate)
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        DialogUtil.show(parentActivity,"Error", "Issue logging in with Facebook, please close the app and try agian later!");
+                    }
+                 }, 100);
             }
         }
     }
